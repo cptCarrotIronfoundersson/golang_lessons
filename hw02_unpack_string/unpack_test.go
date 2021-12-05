@@ -81,3 +81,21 @@ func TestSpecialChars(t *testing.T) {
 		})
 	}
 }
+
+func TestBiggerThanByteChars(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{input: "𒅑4𒀗3𒁅", expected: "𒅑𒅑𒅑𒅑𒀗𒀗𒀗𒁅"},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.input, func(t *testing.T) {
+			result, err := Unpack(tc.input)
+			require.NoError(t, err)
+			require.Equal(t, tc.expected, result)
+		})
+	}
+}
