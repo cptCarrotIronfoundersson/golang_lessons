@@ -61,7 +61,7 @@ func TestCache(t *testing.T) {
 	t.Run("purge length logic", func(t *testing.T) {
 		c := NewCache(3)
 
-		wasInCache := c.Set("fsab", 200)
+		wasInCache := c.Set("fsab", 400)
 		require.False(t, wasInCache)
 
 		wasInCache = c.Set("ccasdas", 300)
@@ -70,7 +70,7 @@ func TestCache(t *testing.T) {
 		wasInCache = c.Set("dgfhdf", 400)
 		require.False(t, wasInCache)
 
-		val, wasInCache := c.Get("t2452")
+		val, wasInCache := c.Get("fsab")
 		require.True(t, wasInCache)
 		require.Equal(t, 400, val)
 	})
@@ -94,7 +94,7 @@ func TestCache(t *testing.T) {
 
 		val, wasInCache = c.Get("ccc")
 		require.True(t, wasInCache)
-		require.Equal(t, 350, val)
+		require.Equal(t, 300, val)
 	})
 }
 
