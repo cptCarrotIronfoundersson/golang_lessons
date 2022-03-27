@@ -27,7 +27,7 @@ func TestReadDir(t *testing.T) {
 
 	v, ok = env["UNSET"]
 	require.True(t, ok)
-	require.Equal(t, EnvValue{"", false}, v)
+	require.Equal(t, EnvValue{"", true}, v)
 }
 
 func TestDummydDir(t *testing.T) {

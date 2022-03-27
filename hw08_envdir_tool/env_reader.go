@@ -27,6 +27,7 @@ func ReadDir(dir string) (Environment, error) {
 		if !d.IsDir() {
 			filepath := fmt.Sprintf("%s/%s", dir, d.Name())
 			file, err := os.Open(filepath)
+			fileInfo, _ := file.Stat()
 			if err != nil {
 				return nil, err
 			}
@@ -44,17 +45,22 @@ func ReadDir(dir string) (Environment, error) {
 			if err != nil {
 				return nil, err
 			}
-			if fileContent == "" || strings.Contains(fileContent, "=") {
-				continue
-			}
+
 			trimsSlice := []string{" ", "\n", "\t", "\x00"}
 			for _, trimSign := range trimsSlice {
 				fileContent = strings.ReplaceAll(fileContent, "\x00", "\n")
 				fileContent = strings.TrimRight(fileContent, trimSign)
 			}
+
+			var needRemove bool
+			if fileInfo.Size() == 0 {
+				needRemove = true
+			} else {
+				needRemove = false
+			}
 			environment[d.Name()] = EnvValue{
 				Value:      fileContent,
-				NeedRemove: false,
+				NeedRemove: needRemove,
 			}
 		}
 	}

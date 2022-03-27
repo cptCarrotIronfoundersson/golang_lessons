@@ -5,17 +5,25 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 // RunCmd runs a command + arguments (cmd) with environment variables from env.
 func RunCmd(cmd []string, env Environment) (returnCode int) {
 	for key, value := range env {
+		if value.NeedRemove {
+			continue
+		} else if strings.Contains(key, "=") {
+			fmt.Println("Знак = запрещен для обозначения переменной окружения")
+			continue
+		}
 		err := os.Unsetenv(key)
 		if err != nil {
 			fmt.Println(err)
 			return 1
 		}
 		err = os.Setenv(key, value.Value)
+		fmt.Println(key, value.Value)
 		if err != nil {
 			fmt.Println(err)
 			return 1
