@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 )
 
@@ -15,6 +14,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	code := RunCmd(d[1:], env)
-	fmt.Println(code)
+	RunCmd(d[1:], env)
+
 }
