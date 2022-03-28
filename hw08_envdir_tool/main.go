@@ -15,5 +15,4 @@ func main() {
 	}
 
 	RunCmd(d[1:], env)
-
 }
