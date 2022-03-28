@@ -12,6 +12,11 @@ import (
 func RunCmd(cmd []string, env Environment) (returnCode int) {
 	for key, value := range env {
 		if value.NeedRemove {
+			err := os.Unsetenv(key)
+			if err != nil {
+				fmt.Println(err)
+				return 1
+			}
 			continue
 		} else if strings.Contains(key, "=") {
 			fmt.Println("Знак = запрещен для обозначения переменной окружения")
@@ -23,7 +28,6 @@ func RunCmd(cmd []string, env Environment) (returnCode int) {
 			return 1
 		}
 		err = os.Setenv(key, value.Value)
-		fmt.Println(key, value.Value)
 		if err != nil {
 			fmt.Println(err)
 			return 1
@@ -40,7 +44,6 @@ func RunCmd(cmd []string, env Environment) (returnCode int) {
 			return 1
 		}
 		fmt.Println(string(out))
-		fmt.Println(err)
 	} else {
 		log.Fatal("Недостаточно аргументов для выполнения программы")
 	}
