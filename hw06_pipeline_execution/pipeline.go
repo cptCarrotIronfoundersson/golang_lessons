@@ -12,7 +12,6 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 	out := in
 	for _, stage := range stages {
 		out = stage(wrapDoneIn(out, done))
-
 	}
 	return out
 }
@@ -32,8 +31,6 @@ func wrapDoneIn(in In, done In) Out {
 				out <- v
 			}
 		}
-
 	}()
 	return out
-
 }
