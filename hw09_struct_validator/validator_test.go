@@ -3,6 +3,7 @@ package hw09structvalidator
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/stretchr/testify/require"
 	"testing"
 )
 
@@ -41,20 +42,29 @@ func TestValidate(t *testing.T) {
 		in          interface{}
 		expectedErr error
 	}{
-		{
-			// Place your code here.
-		},
-		// ...
-		// Place your code here.
+		{in: App{Version: "1234"}, expectedErr: ValidationErrors{{Field: "Version", Err: ErrInvalidLen}}},
+		{in: App{Version: "123456"}, expectedErr: ValidationErrors{{Field: "Version", Err: ErrInvalidLen}}},
+		{in: Response{Code: 505, Body: `{"result":"C большого будуна"}`}, expectedErr: ValidationErrors{{Field: "Code", Err: ErrInvalidIn}}},
+		{in: User{
+			ID:     "12345678_12345678_12345678_12345678",
+			Name:   "Простофиля",
+			Age:    13,
+			Email:  "data@dat123asda.ru",
+			Role:   "dumb guy",
+			Phones: []string{"111111111111111111111111"},
+			meta:   nil,
+		}, expectedErr: ValidationErrors{{Field: "ID", Err: ErrInvalidLen}, {Field: "Age", Err: ErrInvalidMin}, {Field: "Role", Err: ErrInvalidIn}}},
 	}
 
 	for i, tt := range tests {
 		t.Run(fmt.Sprintf("case %d", i), func(t *testing.T) {
 			tt := tt
 			t.Parallel()
+			var validator Validator
 
-			// Place your code here.
-			_ = tt
+			err := validator.Validate(tt.in)
+			require.Error(t, err)
+			require.EqualError(t, err, tt.expectedErr.Error())
 		})
 	}
 }
