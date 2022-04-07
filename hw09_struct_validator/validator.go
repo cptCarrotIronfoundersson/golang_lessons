@@ -124,13 +124,6 @@ func (i Validator) PrepareStringValidation(tag string) (*stringValidation, []err
 	}
 	return &valTerms, validationErrors
 }
-func (i Validator) ValidateInt(StructToValidate interface{}) error {
-	return nil
-}
-
-func (i Validator) ValidateString(StructToValidate interface{}) error {
-	return nil
-}
 
 func (i Validator) Validate(StructToValidate interface{}) error {
 	var vErr ValidationErrors
