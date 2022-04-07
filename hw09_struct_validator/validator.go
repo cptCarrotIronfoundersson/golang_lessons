@@ -201,6 +201,9 @@ func (i Validator) Validate(StructToValidate interface{}) error {
 		} else if Value.Field(d).Kind() == reflect.Slice {
 			s := reflect.ValueOf(Value.Field(d))
 			fmt.Println(Value.Field(d).Kind(), valueType.Field(d).Name, reflect.TypeOf(s), &s, s)
+			for sl := 0; sl < s.Len(); sl++ {
+				fmt.Println(s.Index(d))
+			}
 		}
 	}
 	if len(vErr) != 0 {
