@@ -3,8 +3,9 @@ package hw09structvalidator
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/stretchr/testify/require"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 type UserRole string
@@ -44,7 +45,10 @@ func TestValidate(t *testing.T) {
 	}{
 		{in: App{Version: "1234"}, expectedErr: ValidationErrors{{Field: "Version", Err: ErrInvalidLen}}},
 		{in: App{Version: "123456"}, expectedErr: ValidationErrors{{Field: "Version", Err: ErrInvalidLen}}},
-		{in: Response{Code: 505, Body: `{"result":"C большого будуна"}`}, expectedErr: ValidationErrors{{Field: "Code", Err: ErrInvalidIn}}},
+		{
+			in:          Response{Code: 505, Body: `{"result":"C большого будуна"}`},
+			expectedErr: ValidationErrors{{Field: "Code", Err: ErrInvalidIn}},
+		},
 		{in: User{
 			ID:     "12345678_12345678_12345678_12345678",
 			Name:   "Простофиля",
@@ -53,7 +57,12 @@ func TestValidate(t *testing.T) {
 			Role:   "dumb guy",
 			Phones: []string{"111111111111111111111111"},
 			meta:   nil,
-		}, expectedErr: ValidationErrors{{Field: "ID", Err: ErrInvalidLen}, {Field: "Age", Err: ErrInvalidMin}, {Field: "Role", Err: ErrInvalidIn}}},
+		}, expectedErr: ValidationErrors{
+			{Field: "ID", Err: ErrInvalidLen},
+			{Field: "Age", Err: ErrInvalidMin},
+			{Field: "Role", Err: ErrInvalidIn},
+			{Field: "Phones", Err: ErrInvalidLen},
+		}},
 	}
 
 	for i, tt := range tests {

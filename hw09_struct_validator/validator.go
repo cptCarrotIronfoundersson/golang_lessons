@@ -36,25 +36,23 @@ type StructValidator interface {
 	Validate(interface{}) []error
 }
 
-type Validator struct {
-	// Тут можно забабахать всякие доп настройки, но впереди столько домашек, а времени нет
-}
+type Validator struct{}
 
-type intValidation struct {
+type IntValidation struct {
 	min int64
 	max int64
 	in  []int64
 }
 
-type stringValidation struct {
+type StringValidation struct {
 	len    int64
 	regexp string
 	in     []string
 }
 
-func (i Validator) PrepareIntValidation(tag string) (*intValidation, []error) {
+func (i Validator) PrepareIntValidation(tag string) (*IntValidation, []error) {
 	terms := strings.Split(tag, "|")
-	var valTerms intValidation
+	var valTerms IntValidation
 	var validationErrors []error
 	for _, term := range terms {
 		splitedTag := strings.Split(term, ":")
@@ -82,7 +80,7 @@ func (i Validator) PrepareIntValidation(tag string) (*intValidation, []error) {
 			for _, val := range strings.Split(tagValue, ",") {
 				intVal, err := strconv.Atoi(val)
 				if err != nil {
-					validationErrors = append(validationErrors)
+					validationErrors = append(validationErrors, err)
 					continue
 				}
 				inValues = append(inValues, int64(intVal))
@@ -93,9 +91,9 @@ func (i Validator) PrepareIntValidation(tag string) (*intValidation, []error) {
 	return &valTerms, validationErrors
 }
 
-func (i Validator) PrepareStringValidation(tag string) (*stringValidation, []error) {
+func (i Validator) PrepareStringValidation(tag string) (*StringValidation, []error) {
 	terms := strings.Split(tag, "|")
-	var valTerms stringValidation
+	var valTerms StringValidation
 	var validationErrors []error
 	for _, term := range terms {
 		splitedTag := strings.Split(term, ":")
@@ -116,86 +114,49 @@ func (i Validator) PrepareStringValidation(tag string) (*stringValidation, []err
 
 		case tagExp == "in":
 			var inValues []string
-			for _, val := range strings.Split(tagValue, ",") {
-				inValues = append(inValues, val)
-			}
+			inValues = append(inValues, strings.Split(tagValue, ",")...)
 			valTerms.in = inValues
 		}
 	}
 	return &valTerms, validationErrors
 }
 
-func (i Validator) Validate(StructToValidate interface{}) error {
+func (i Validator) ValidateValue(fieldValue reflect.Value, fieldType reflect.StructField, vErr *ValidationErrors) {
+	if fieldValue.Kind() == reflect.Int {
+		valTerms, PrepareErrors := i.PrepareIntValidation(fieldType.Tag.Get("validate"))
+		for _, err := range PrepareErrors {
+			*vErr = append(*vErr, ValidationError{
+				Field: fieldType.Name,
+				Err:   err,
+			})
+		}
+		valTerms.validateMin(fieldValue.Int(), ValidationError{Field: fieldType.Name, Err: nil}, vErr)
+		valTerms.validateMax(fieldValue.Int(), ValidationError{Field: fieldType.Name, Err: nil}, vErr)
+		valTerms.validateIn(fieldValue.Int(), ValidationError{Field: fieldType.Name, Err: nil}, vErr)
+	} else if fieldValue.Kind() == reflect.String {
+		valTerms, PrepareErrors := i.PrepareStringValidation(fieldType.Tag.Get("validate"))
+		for _, err := range PrepareErrors {
+			*vErr = append(*vErr, ValidationError{
+				Field: fieldType.Name,
+				Err:   err,
+			})
+		}
+		valTerms.validateLen(fieldValue.String(), ValidationError{Field: fieldType.Name, Err: nil}, vErr)
+		valTerms.validateRegexp(fieldValue.String(), ValidationError{Field: fieldType.Name, Err: nil}, vErr)
+		valTerms.validateIn(fieldValue.String(), ValidationError{Field: fieldType.Name, Err: nil}, vErr)
+	}
+}
+
+func (i Validator) Validate(structToValidate interface{}) error {
 	var vErr ValidationErrors
-	Value := reflect.ValueOf(StructToValidate)
+	Value := reflect.ValueOf(structToValidate)
 	valueType := Value.Type()
 	for d := 0; d < valueType.NumField(); d++ {
-
-		if valueType.Field(d).Tag.Get("validate") == "" {
-			continue
-		} else if Value.Field(d).Kind() == reflect.Int {
-			valTerms, PrepareErrors := i.PrepareIntValidation(valueType.Field(d).Tag.Get("validate")) // use validation errors
-			for _, err := range PrepareErrors {
-				vErr = append(vErr, ValidationError{
-					Field: valueType.Field(d).Name,
-					Err:   err,
-				})
-			}
-			err := valTerms.validateMin(Value.Field(d).Int())
-			if err != nil {
-				vErr = append(vErr, ValidationError{
-					Field: valueType.Field(d).Name,
-					Err:   err,
-				})
-			}
-			err = valTerms.validateMax(Value.Field(d).Int())
-			if err != nil {
-				vErr = append(vErr, ValidationError{
-					Field: valueType.Field(d).Name,
-					Err:   err,
-				})
-			}
-			err = valTerms.validateIn(Value.Field(d).Int())
-			if err != nil {
-				vErr = append(vErr, ValidationError{
-					Field: valueType.Field(d).Name,
-					Err:   err,
-				})
-			}
-		} else if Value.Field(d).Kind() == reflect.String {
-			valTerms, PrepareErrors := i.PrepareStringValidation(valueType.Field(d).Tag.Get("validate"))
-			for _, err := range PrepareErrors {
-				vErr = append(vErr, ValidationError{
-					Field: valueType.Field(d).Name,
-					Err:   err,
-				})
-			}
-			err := valTerms.validateLen(Value.Field(d).String())
-			if err != nil {
-				vErr = append(vErr, ValidationError{
-					Field: valueType.Field(d).Name,
-					Err:   err,
-				})
-			}
-			err = valTerms.validateRegexp(Value.Field(d).String())
-			if err != nil {
-				vErr = append(vErr, ValidationError{
-					Field: valueType.Field(d).Name,
-					Err:   err,
-				})
-			}
-			err = valTerms.validateIn(Value.Field(d).String())
-			if err != nil {
-				vErr = append(vErr, ValidationError{
-					Field: valueType.Field(d).Name,
-					Err:   err,
-				})
-			}
+		if valueType.Field(d).Tag.Get("validate") != "" && Value.Field(d).Kind() != reflect.Slice {
+			i.ValidateValue(Value.Field(d), valueType.Field(d), &vErr)
 		} else if Value.Field(d).Kind() == reflect.Slice {
-			s := reflect.ValueOf(Value.Field(d))
-			fmt.Println(Value.Field(d).Kind(), valueType.Field(d).Name, reflect.TypeOf(s), &s, s)
-			for sl := 0; sl < s.Len(); sl++ {
-				fmt.Println(s.Index(d))
+			for sl := 0; sl < Value.Field(d).Len(); sl++ {
+				i.ValidateValue(Value.Field(d).Index(sl), valueType.Field(d), &vErr)
 			}
 		}
 	}
@@ -205,24 +166,24 @@ func (i Validator) Validate(StructToValidate interface{}) error {
 	return nil
 }
 
-func (i intValidation) validateMin(val int64) error {
+func (i IntValidation) validateMin(val int64, vErr ValidationError, vErrs *ValidationErrors) {
 	if val < i.min && i.min > 0 {
-		return ErrInvalidMin
+		vErr.Err = ErrInvalidMin
+		*vErrs = append(*vErrs, vErr)
 	}
-	return nil
 }
 
-func (i intValidation) validateMax(val int64) error {
+func (i IntValidation) validateMax(val int64, vErr ValidationError, vErrs *ValidationErrors) {
 	if val > i.max && i.max > 0 {
-		return ErrInvalidMax
+		vErr.Err = ErrInvalidMax
+		*vErrs = append(*vErrs, vErr)
 	}
-	return nil
 }
 
-func (i intValidation) validateIn(val int64) error {
+func (i IntValidation) validateIn(val int64, vErr ValidationError, vErrs *ValidationErrors) {
 	var ValueIn bool
 	if len(i.in) < 1 {
-		return nil
+		return
 	}
 	for _, value := range i.in {
 		if value == val {
@@ -230,34 +191,34 @@ func (i intValidation) validateIn(val int64) error {
 			break
 		}
 	}
-	if ValueIn == false {
-		return ErrInvalidIn
+	if !ValueIn {
+		vErr.Err = ErrInvalidIn
+		*vErrs = append(*vErrs, vErr)
 	}
-	return nil
 }
 
-func (i stringValidation) validateLen(val string) error {
+func (i StringValidation) validateLen(val string, vErr ValidationError, vErrs *ValidationErrors) {
 	if int64(len(val)) != i.len && i.len > 0 {
-		return ErrInvalidLen
+		vErr.Err = ErrInvalidLen
+		*vErrs = append(*vErrs, vErr)
 	}
-	return nil
 }
 
-func (i stringValidation) validateRegexp(val string) error {
+func (i StringValidation) validateRegexp(val string, vErr ValidationError, vErrs *ValidationErrors) {
 	matched, err := regexp.Match(i.regexp, []byte(val))
 	if err != nil {
-		return err
+		return
 	}
 	if !matched {
-		return ErrInvalidRegexp
+		vErr.Err = ErrInvalidRegexp
+		*vErrs = append(*vErrs, vErr)
 	}
-	return nil
 }
 
-func (i stringValidation) validateIn(val string) error {
+func (i StringValidation) validateIn(val string, vErr ValidationError, vErrs *ValidationErrors) {
 	var ValueIn bool
 	if len(i.in) < 1 {
-		return nil
+		return
 	}
 	for _, validVal := range i.in {
 		if validVal == val {
@@ -265,8 +226,8 @@ func (i stringValidation) validateIn(val string) error {
 			break
 		}
 	}
-	if ValueIn == false {
-		return ErrInvalidIn
+	if !ValueIn {
+		vErr.Err = ErrInvalidIn
+		*vErrs = append(*vErrs, vErr)
 	}
-	return nil
 }
