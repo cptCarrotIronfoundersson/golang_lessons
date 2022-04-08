@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 type UserRole string
@@ -41,20 +43,37 @@ func TestValidate(t *testing.T) {
 		in          interface{}
 		expectedErr error
 	}{
+		{in: App{Version: "1234"}, expectedErr: ValidationErrors{{Field: "Version", Err: ErrInvalidLen}}},
+		{in: App{Version: "123456"}, expectedErr: ValidationErrors{{Field: "Version", Err: ErrInvalidLen}}},
 		{
-			// Place your code here.
+			in:          Response{Code: 505, Body: `{"result":"C большого будуна"}`},
+			expectedErr: ValidationErrors{{Field: "Code", Err: ErrInvalidIn}},
 		},
-		// ...
-		// Place your code here.
+		{in: User{
+			ID:     "12345678_12345678_12345678_12345678",
+			Name:   "Простофиля",
+			Age:    13,
+			Email:  "data@dat123asda.ru",
+			Role:   "dumb guy",
+			Phones: []string{"111111111111111111111111"},
+			meta:   nil,
+		}, expectedErr: ValidationErrors{
+			{Field: "ID", Err: ErrInvalidLen},
+			{Field: "Age", Err: ErrInvalidMin},
+			{Field: "Role", Err: ErrInvalidIn},
+			{Field: "Phones", Err: ErrInvalidLen},
+		}},
 	}
 
 	for i, tt := range tests {
 		t.Run(fmt.Sprintf("case %d", i), func(t *testing.T) {
 			tt := tt
 			t.Parallel()
+			var validator Validator
 
-			// Place your code here.
-			_ = tt
+			err := validator.Validate(tt.in)
+			require.Error(t, err)
+			require.EqualError(t, err, tt.expectedErr.Error())
 		})
 	}
 }
