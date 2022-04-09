@@ -1,3 +1,4 @@
+//go:build bench
 // +build bench
 
 package hw10programoptimization
@@ -7,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/require"
+	json "github.com/stretchr/testify/require"
 )
 
 const (
