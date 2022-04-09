@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	json "github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/require"
 )
 
 const (
