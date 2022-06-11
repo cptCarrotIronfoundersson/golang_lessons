@@ -1,0 +1,9 @@
+logger:
+  level: Debug
+  development: True
+  logfile: ~/log
+
+server:
+  host: 127.0.0.1
+  port: 2020
+#  port: 30023
