@@ -15,12 +15,14 @@ type Storage struct {
 }
 
 func New() *Storage {
-	return &Storage{mu: sync.RWMutex{}}
+	events := make(map[uuid.UUID]entity.Event)
+	return &Storage{mu: sync.RWMutex{}, events: events}
 }
 
 func (s *Storage) Create(ctx context.Context, event entity.Event) error {
 	s.mu.Lock()
-	s.events[uuid.New()] = event
+	event.UUID = uuid.New()
+	s.events[event.UUID] = event
 	defer s.mu.Unlock()
 	return nil
 }
@@ -46,6 +48,16 @@ func (s *Storage) EventsListDateRange(ctx context.Context, start time.Time, end 
 		if value.StartDatetime.After(start) || value.EndDatetime.Before(end) {
 			EventList = append(EventList, value)
 		}
+	}
+	defer s.mu.Unlock()
+	return EventList, nil
+}
+
+func (s *Storage) AllEvents(ctx context.Context) ([]entity.Event, error) {
+	EventList := make([]entity.Event, 0)
+	s.mu.Lock()
+	for _, value := range s.events {
+		EventList = append(EventList, value)
 	}
 	defer s.mu.Unlock()
 	return EventList, nil

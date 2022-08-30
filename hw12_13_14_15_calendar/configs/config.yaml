@@ -1,9 +1,15 @@
 logger:
-  level: Debug
+  level: DEBUG
   development: True
   logfile: ~/log
 
-server:
+httpserver:
   host: 127.0.0.1
-  port: 2020
+  port: 2021
+
+grpcserver:
+  host: 127.0.0.1
+  port: 2022
+  available: true
+
 #  port: 30023

@@ -21,5 +21,8 @@ const (
 	GetEventsByTimeRange = `SELECT * from events where start_datetime > ? and end_datetime < ?;`
 
 	// language=SQL .
+	GetAllEvents = `SELECT * from events;`
+
+	// language=SQL .
 	DeleteEvent = `delete from events where uuid=?;`
 )

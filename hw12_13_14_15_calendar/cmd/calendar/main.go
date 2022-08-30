@@ -12,6 +12,7 @@ import (
 	"github.com/fixme_my_friend/hw12_13_14_15_calendar/cmd"
 	"github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/app"
 	"github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/logger"
+	internalgrpc "github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/server/grpc"
 	internalhttp "github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/server/http"
 	memorystorage "github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/storage/memory"
 )
@@ -33,9 +34,8 @@ func main() {
 
 	storage := memorystorage.New()
 	calendar := app.New(logg, storage)
-
-	server := internalhttp.NewServer(logg, conf, calendar)
-
+	grpcserver := internalgrpc.NewServer(logg, conf, calendar)
+	httpserver := internalhttp.NewServer(logg, conf, calendar)
 	ctx, cancel := signal.NotifyContext(context.Background(),
 		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 	defer cancel()
@@ -46,14 +46,21 @@ func main() {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 		defer cancel()
 
-		if err := server.Stop(ctx); err != nil {
+		if err := httpserver.Stop(ctx); err != nil {
+			logg.Error("failed to stop http server: " + err.Error())
+		}
+		if err := grpcserver.Stop(ctx); err != nil {
 			logg.Error("failed to stop http server: " + err.Error())
 		}
 	}()
 
 	logg.Info("calendar is running...")
+	err := grpcserver.Start(ctx)
 
-	if err := server.Start(ctx); err != nil {
+	if err != nil {
+		logg.Error(err)
+	}
+	if err := httpserver.Start(ctx); err != nil {
 		logg.Error("failed to start http server: " + err.Error())
 		cancel()
 		os.Exit(1) //nolint:gocritic

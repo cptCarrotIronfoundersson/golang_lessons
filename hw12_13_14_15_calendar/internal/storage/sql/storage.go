@@ -73,3 +73,12 @@ func (s *Storage) EventsListDateRange(ctx context.Context, start time.Time, end 
 	}
 	return eventsList, nil
 }
+
+func (s *Storage) AllEvents(ctx context.Context) ([]entity.Event, error) {
+	eventsList := make([]entity.Event, 0)
+	err := s.conn.SelectContext(context.Background(), eventsList, GetAllEvents)
+	if err != nil {
+		return nil, err
+	}
+	return eventsList, nil
+}

@@ -1,6 +1,7 @@
 package internalhttp
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 )
@@ -10,19 +11,19 @@ type statusWriter struct {
 	status int
 	length int
 }
+type middleware func(logger Logger, next http.Handler) http.Handler
+
+func middlewareChainApply(logger Logger, next http.Handler, m []middleware) http.Handler {
+	var chainedHandler = next
+	for _, mid := range m {
+		chainedHandler = mid(logger, chainedHandler)
+	}
+	return chainedHandler
+}
 
 func (w *statusWriter) WriteHeader(status int) {
 	w.status = status
 	w.ResponseWriter.WriteHeader(status)
-}
-
-func (w *statusWriter) Write(b []byte) (int, error) {
-	if w.status == 0 {
-		w.status = 200
-	}
-	n, err := w.ResponseWriter.Write(b)
-	w.length += n
-	return n, err
 }
 
 func loggingMiddleware(logger Logger, next http.Handler) http.Handler {
@@ -33,5 +34,21 @@ func loggingMiddleware(logger Logger, next http.Handler) http.Handler {
 			fmt.Sprintf("ClientAddr: %s \n Method: %s\n URL: %s\nHttpProtocol: %s\nStatusCode: %d",
 				r.Host, r.Method, r.URL, r.Proto, sw.status),
 		)
+	})
+}
+
+func EnsureAppJsonMiddleware(logger Logger, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("Content-Type") != "application/json" {
+			fmt.Println(r.Header.Get("Content-Type"))
+			w.WriteHeader(http.StatusBadRequest)
+			next.ServeHTTP(w, r)
+			errmsg := fmt.Sprintf("StatusCode: %d - there is no application/json Content-type",
+				http.StatusBadRequest)
+			w.Write([]byte(errmsg))
+			logger.Error(errors.New(errmsg))
+			return
+		}
+		next.ServeHTTP(w, r)
 	})
 }
