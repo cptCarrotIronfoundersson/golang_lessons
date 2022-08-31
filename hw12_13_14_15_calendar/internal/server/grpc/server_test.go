@@ -2,12 +2,11 @@ package grpc
 
 import (
 	"context"
-	"fmt"
-	"github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/app"
-	"github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/logger"
-	pbgrpc "github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/server/grpc/pb"
-	memorystorage "github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/storage/memory"
-	"github.com/magiconair/properties/assert"
+	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/app"
+	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/logger"
+	pbgrpc "github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/server/grpc/pb"
+	memorystorage "github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/storage/memory"
+	"github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"testing"
@@ -89,16 +88,24 @@ func TestCreateEvents(t *testing.T) {
 
 	date.Timestamp.Seconds = 1
 	allEvents, _ := server.GetAllEvents(ctx, nil)
-
-	fmt.Printf("%+v\n", allEvents)
-	for i := 0; i < len(allEvents.Events); i++ {
-		assert.Equal(t, allEvents.Events[i].UserID, testEvents.Events[i].UserID)
-		assert.Equal(t, allEvents.Events[i].StartDatetime.Seconds, testEvents.Events[i].StartDatetime.Seconds)
-		assert.Equal(t, allEvents.Events[i].StartDatetime.Nanos, testEvents.Events[i].StartDatetime.Nanos)
-		assert.Equal(t, allEvents.Events[i].EndDatetime.Seconds, testEvents.Events[i].EndDatetime.Seconds)
-		assert.Equal(t, allEvents.Events[i].EndDatetime.Nanos, testEvents.Events[i].EndDatetime.Nanos)
-		assert.Equal(t, allEvents.Events[i].Description, testEvents.Events[i].Description)
-		assert.Equal(t, allEvents.Events[i].Title, testEvents.Events[i].Title)
+	testEventsMap := make(map[string]*pbgrpc.Event)
+	for _, i := range testEvents.Events {
+		testEventsMap[i.UserID] = i
 	}
-	fmt.Printf("%+v\n", &testEvents)
+	expectedMap := make(map[string]*pbgrpc.Event)
+	for _, i := range allEvents.Events {
+		expectedMap[i.UserID] = i
+	}
+	for i := range expectedMap {
+		assert.Equal(t, expectedMap[i].UserID, testEventsMap[i].UserID)
+		assert.Equal(t, expectedMap[i].StartDatetime.Seconds, testEventsMap[i].StartDatetime.Seconds)
+		assert.Equal(t, expectedMap[i].StartDatetime.Nanos, testEventsMap[i].StartDatetime.Nanos)
+		assert.Equal(t, expectedMap[i].EndDatetime.Seconds, testEventsMap[i].EndDatetime.Seconds)
+		assert.Equal(t, expectedMap[i].EndDatetime.Nanos, testEventsMap[i].EndDatetime.Nanos)
+		assert.Equal(t, expectedMap[i].Description, testEventsMap[i].Description)
+		assert.Equal(t, expectedMap[i].Title, testEventsMap[i].Title)
+	}
+	//for i := 0; i < len(allEvents.Events); i++ {
+
+	//}
 }

@@ -10,24 +10,19 @@ build:
 run: build
 	$(BIN) --config ./configs/config.toml
 
-build-img:
-	docker build \
-		--build-arg=LDFLAGS="$(LDFLAGS)" \
-		-t $(DOCKER_IMG) \
-		-f build/Dockerfile .
-
-deploy:
+run_docker:
 	docker-compose -f ./deployments/docker-compose.yaml down --remove-orphans && docker-compose -f ./deployments/docker-compose.yaml up --build -d
 
-migrate-db: deploy
+migrate-db:
 	/bin/bash migrations/migrate.sh
+
+deploy: run_docker migrate-db
 
 version: build
 	$(BIN) version
 
-
 test:
-	go test -race ./internal/...
+	go test -count=1 -race ./internal/...
 
 install-lint-deps:
 	(which golangci-lint > /dev/null) || curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v1.41.1

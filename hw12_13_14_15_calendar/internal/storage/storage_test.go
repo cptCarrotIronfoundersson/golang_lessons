@@ -2,8 +2,8 @@ package storage
 
 // import (
 //	"context"
-//	"github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/service/entity"
-//	"github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/storage/mocks"
+//	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/service/entity"
+//	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/storage/mocks"
 //	"github.com/golang/mock/gomock"
 //	"github.com/google/uuid"
 //	"testing"

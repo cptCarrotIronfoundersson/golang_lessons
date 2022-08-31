@@ -2,9 +2,9 @@ package app
 
 import (
 	"context"
-	"github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/logger"
-	"github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/service/entity"
-	"github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/storage"
+	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/logger"
+	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/service/entity"
+	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/storage"
 	"github.com/google/uuid"
 	"time"
 )

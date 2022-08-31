@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/fixme_my_friend/hw12_13_14_15_calendar/configs/config"
+	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/configs/config"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )

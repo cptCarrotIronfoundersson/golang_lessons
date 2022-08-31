@@ -2,10 +2,10 @@ package internalhttp
 
 import (
 	"encoding/json"
-	"github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/app"
-	"github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/logger"
-	"github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/service/entity"
-	memorystorage "github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/storage/memory"
+	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/app"
+	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/logger"
+	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/service/entity"
+	memorystorage "github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/storage/memory"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
