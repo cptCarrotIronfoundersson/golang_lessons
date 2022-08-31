@@ -31,10 +31,10 @@ func init() {
 		"Path to configuration file")
 	rootCmd.PersistentFlags().StringVar(&Config.Logger.Level, "logger.loglevel", "INFO", "Logger level")
 	rootCmd.PersistentFlags().StringVar(&Config.Logger.LogFile, "logger.logfile", "~/log", "Path to log File")
-	rootCmd.PersistentFlags().StringVar(&Config.HttpServer.Host, "http_server.Host", "127.0.0.1", "HTTP server host")
-	rootCmd.PersistentFlags().StringVar(&Config.HttpServer.Port, "http_server.Port", "8080", "GRPC SERVER port")
-	rootCmd.PersistentFlags().StringVar(&Config.GrpcServer.Host, "grpc_server.Host", "127.0.0.1", "GRPC SERVER host")
-	rootCmd.PersistentFlags().StringVar(&Config.GrpcServer.Port, "grpc_server.Port", "8081", "server port")
+	rootCmd.PersistentFlags().StringVar(&Config.HTTPServer.Host, "http_server.Host", "127.0.0.1", "HTTP server host")
+	rootCmd.PersistentFlags().StringVar(&Config.HTTPServer.Port, "http_server.Port", "8080", "GRPC SERVER port")
+	rootCmd.PersistentFlags().StringVar(&Config.GRPCServer.Host, "grpc_server.Host", "127.0.0.1", "GRPC SERVER host")
+	rootCmd.PersistentFlags().StringVar(&Config.GRPCServer.Port, "grpc_server.Port", "8081", "server port")
 	rootCmd.PersistentFlags().StringVar(&Config.Storage.DSN, "storage.dsn", "", "db dsn")
 	cobra.CheckErr(viper.BindEnv("logger.loglevel", "loglevel", "log-level", "log_level"))
 	cobra.CheckErr(viper.BindEnv("logger.logfile", "logfile", "log_file", "logFile"))
@@ -76,6 +76,6 @@ func initConfig() {
 	} else {
 		cobra.CheckErr(err)
 	}
-	fmt.Println(Config.GrpcServer.Port, Config.GrpcServer.Host, Config.Logger.Level)
-	fmt.Println(Config.HttpServer.Port, Config.HttpServer.Host, Config.Logger.Level)
+	fmt.Println(Config.GRPCServer.Port, Config.GRPCServer.Host, Config.Logger.Level)
+	fmt.Println(Config.HTTPServer.Port, Config.HTTPServer.Host, Config.Logger.Level)
 }

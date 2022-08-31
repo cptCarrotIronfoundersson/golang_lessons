@@ -2,11 +2,12 @@ package app
 
 import (
 	"context"
+	"time"
+
 	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/logger"
 	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/service/entity"
 	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/storage"
 	"github.com/google/uuid"
-	"time"
 )
 
 type Application interface {

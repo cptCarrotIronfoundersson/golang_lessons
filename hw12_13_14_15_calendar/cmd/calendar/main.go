@@ -56,7 +56,6 @@ func main() {
 
 	logg.Info("calendar is running...")
 	err := grpcserver.Start(ctx)
-
 	if err != nil {
 		logg.Error(err)
 	}

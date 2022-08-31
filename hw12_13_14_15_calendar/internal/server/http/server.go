@@ -4,14 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"os"
+	"time"
+
 	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/configs/config"
 	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/app"
 	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/logger"
 	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/service/entity"
 	"github.com/google/uuid"
-	"net/http"
-	"os"
-	"time"
 )
 
 type Server struct {
@@ -50,7 +51,6 @@ func (a ServerApp) createEvent(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 	rw.WriteHeader(http.StatusOK)
-
 }
 
 func (a ServerApp) UpdateEvent(rw http.ResponseWriter, req *http.Request) {
@@ -112,8 +112,13 @@ func (a ServerApp) getEventsByDay(rw http.ResponseWriter, req *http.Request) {
 		a.logger.Error("server.getEventsByDay " + err.Error())
 		return
 	}
-	eventsJson, err := json.MarshalIndent(events, "", "\t")
-	rw.Write(eventsJson)
+	eventsJSON, err := json.MarshalIndent(events, "", "\t")
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		a.logger.Error("server.getEventsByDay " + err.Error())
+		return
+	}
+	rw.Write(eventsJSON)
 }
 
 func (a ServerApp) getEventsByWeek(rw http.ResponseWriter, req *http.Request) {
@@ -127,8 +132,13 @@ func (a ServerApp) getEventsByWeek(rw http.ResponseWriter, req *http.Request) {
 		a.logger.Error("server.getEventsByWeek " + err.Error())
 		return
 	}
-	eventsJson, err := json.MarshalIndent(events, "", "\t")
-	rw.Write(eventsJson)
+	eventsJSON, err := json.MarshalIndent(events, "", "\t")
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		a.logger.Error("server.getEventsByWeek " + err.Error())
+		return
+	}
+	rw.Write(eventsJSON)
 }
 
 func (a ServerApp) getEventsByMonth(rw http.ResponseWriter, req *http.Request) {
@@ -142,8 +152,13 @@ func (a ServerApp) getEventsByMonth(rw http.ResponseWriter, req *http.Request) {
 		a.logger.Error("server.getEventsByMounth " + err.Error())
 		return
 	}
-	eventsJson, err := json.MarshalIndent(events, "", "\t")
-	rw.Write(eventsJson)
+	eventsJSON, err := json.MarshalIndent(events, "", "\t")
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		a.logger.Error("server.getEventsByMounth " + err.Error())
+		return
+	}
+	rw.Write(eventsJSON)
 }
 
 func (a ServerApp) getAllEvents(rw http.ResponseWriter, req *http.Request) {
@@ -152,36 +167,36 @@ func (a ServerApp) getAllEvents(rw http.ResponseWriter, req *http.Request) {
 		if err != nil {
 			fmt.Println(err)
 		}
-		eventsJson, err := json.MarshalIndent(events, "", "\t")
+		eventsJSON, err := json.MarshalIndent(events, "", "\t")
 		if err != nil {
 			a.logger.Error(err)
 		}
-		rw.Write(eventsJson)
+		rw.Write(eventsJSON)
 	} else {
 		rw.WriteHeader(http.StatusBadRequest)
 	}
 }
 
 func NewServer(logger *logger.Logger, config *config.Config, app app.Application) *Server {
-	logger.Info(fmt.Sprintf("Server startded:  Host %v, Port %v", config.HttpServer.Host, config.HttpServer.Port))
+	logger.Info(fmt.Sprintf("Server startded:  Host %v, Port %v", config.HTTPServer.Host, config.GRPCServer.Port))
 	application := ServerApp{
 		app:    app,
 		logger: logger,
 	}
 	eventCreate := middlewareChainApply(logger, http.HandlerFunc(application.createEvent),
-		[]middleware{EnsureAppJsonMiddleware, loggingMiddleware})
+		[]middleware{EnsureAppJSONMiddleware, loggingMiddleware})
 	getAllEvents := middlewareChainApply(logger, http.HandlerFunc(application.getAllEvents),
-		[]middleware{EnsureAppJsonMiddleware, loggingMiddleware})
+		[]middleware{EnsureAppJSONMiddleware, loggingMiddleware})
 	eventUpdate := middlewareChainApply(logger, http.HandlerFunc(application.UpdateEvent),
-		[]middleware{EnsureAppJsonMiddleware, loggingMiddleware})
+		[]middleware{EnsureAppJSONMiddleware, loggingMiddleware})
 	eventDelete := middlewareChainApply(logger, http.HandlerFunc(application.DeleteEvent),
-		[]middleware{EnsureAppJsonMiddleware, loggingMiddleware})
+		[]middleware{EnsureAppJSONMiddleware, loggingMiddleware})
 	getEventsByDay := middlewareChainApply(logger, http.HandlerFunc(application.getEventsByDay),
-		[]middleware{EnsureAppJsonMiddleware, loggingMiddleware})
+		[]middleware{EnsureAppJSONMiddleware, loggingMiddleware})
 	getEventsByWeek := middlewareChainApply(logger, http.HandlerFunc(application.getEventsByWeek),
 		[]middleware{loggingMiddleware})
 	getEventsByMonth := middlewareChainApply(logger, http.HandlerFunc(application.getEventsByMonth),
-		[]middleware{EnsureAppJsonMiddleware, loggingMiddleware})
+		[]middleware{EnsureAppJSONMiddleware, loggingMiddleware})
 
 	http.Handle("/event/create", eventCreate)
 	http.Handle("/event/get_all", getAllEvents)
@@ -191,8 +206,8 @@ func NewServer(logger *logger.Logger, config *config.Config, app app.Application
 	http.Handle("/event/get_events_by_week", getEventsByWeek)
 	http.Handle("/event/get_events_by_month", getEventsByMonth)
 	return &Server{
-		Host: config.GrpcServer.Host,
-		Port: config.GrpcServer.Port,
+		Host: config.GRPCServer.Host,
+		Port: config.GRPCServer.Port,
 	}
 }
 

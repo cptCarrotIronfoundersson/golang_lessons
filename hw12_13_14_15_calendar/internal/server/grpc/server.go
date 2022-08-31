@@ -3,6 +3,10 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"log"
+	"net"
+	"time"
+
 	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/configs/config"
 	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/app"
 	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/logger"
@@ -12,9 +16,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"log"
-	"net"
-	"time"
 )
 
 type ServerApp struct {
@@ -28,6 +29,32 @@ type Server struct {
 	listener net.Listener
 	server   *grpc.Server
 	app      app.Application
+}
+
+func packGrpcEvents(events []entity.Event) *pbgrpc.Events {
+	var grpcEvents pbgrpc.Events
+	for _, ev := range events {
+		grpcEvents.Events = append(grpcEvents.Events, &pbgrpc.Event{
+			UUID:  ev.UUID.String(),
+			Title: ev.Title,
+			Datetime: &timestamppb.Timestamp{
+				Seconds: ev.Datetime.Unix(),
+				Nanos:   0,
+			},
+			StartDatetime: &timestamppb.Timestamp{
+				Seconds: ev.StartDatetime.Unix(),
+				Nanos:   0,
+			},
+			EndDatetime: &timestamppb.Timestamp{
+				Seconds: ev.EndDatetime.Unix(),
+				Nanos:   0,
+			},
+			Description:      ev.Description,
+			UserID:           ev.UserID.String(),
+			RemindTimeBefore: &durationpb.Duration{Seconds: int64(ev.RemindTimeBefore.Seconds())},
+		})
+	}
+	return &grpcEvents
 }
 
 func (a ServerApp) CreateEvent(ctx context.Context, event *pbgrpc.EventCreate) (*pbgrpc.Result, error) {
@@ -100,30 +127,7 @@ func (a ServerApp) GetEventsByDay(ctx context.Context, datetime *pbgrpc.Datetime
 	if err != nil {
 		return nil, err
 	}
-	var grpcEvents pbgrpc.Events
-	for _, ev := range events {
-
-		grpcEvents.Events = append(grpcEvents.Events, &pbgrpc.Event{
-			UUID:  ev.UUID.String(),
-			Title: ev.Title,
-			Datetime: &timestamppb.Timestamp{
-				Seconds: ev.Datetime.Unix(),
-				Nanos:   0,
-			},
-			StartDatetime: &timestamppb.Timestamp{
-				Seconds: ev.StartDatetime.Unix(),
-				Nanos:   0,
-			},
-			EndDatetime: &timestamppb.Timestamp{
-				Seconds: ev.EndDatetime.Unix(),
-				Nanos:   0,
-			},
-			Description:      ev.Description,
-			UserID:           ev.UserID.String(),
-			RemindTimeBefore: &durationpb.Duration{Seconds: int64(ev.RemindTimeBefore.Seconds())},
-		})
-	}
-	return &grpcEvents, nil
+	return packGrpcEvents(events), nil
 }
 
 func (a ServerApp) GetEventsByWeek(ctx context.Context, datetime *pbgrpc.Datetime) (*pbgrpc.Events, error) {
@@ -132,30 +136,7 @@ func (a ServerApp) GetEventsByWeek(ctx context.Context, datetime *pbgrpc.Datetim
 	if err != nil {
 		return nil, err
 	}
-	var grpcEvents pbgrpc.Events
-	for _, ev := range events {
-
-		grpcEvents.Events = append(grpcEvents.Events, &pbgrpc.Event{
-			UUID:  ev.UUID.String(),
-			Title: ev.Title,
-			Datetime: &timestamppb.Timestamp{
-				Seconds: ev.Datetime.Unix(),
-				Nanos:   0,
-			},
-			StartDatetime: &timestamppb.Timestamp{
-				Seconds: ev.StartDatetime.Unix(),
-				Nanos:   0,
-			},
-			EndDatetime: &timestamppb.Timestamp{
-				Seconds: ev.EndDatetime.Unix(),
-				Nanos:   0,
-			},
-			Description:      ev.Description,
-			UserID:           ev.UserID.String(),
-			RemindTimeBefore: &durationpb.Duration{Seconds: int64(ev.RemindTimeBefore.Seconds())},
-		})
-	}
-	return &grpcEvents, nil
+	return packGrpcEvents(events), nil
 }
 
 func (a ServerApp) GetEventsByMonth(ctx context.Context, datetime *pbgrpc.Datetime) (*pbgrpc.Events, error) {
@@ -164,39 +145,16 @@ func (a ServerApp) GetEventsByMonth(ctx context.Context, datetime *pbgrpc.Dateti
 	if err != nil {
 		return nil, err
 	}
-	var grpcEvents pbgrpc.Events
-	for _, ev := range events {
-
-		grpcEvents.Events = append(grpcEvents.Events, &pbgrpc.Event{
-			UUID:  ev.UUID.String(),
-			Title: ev.Title,
-			Datetime: &timestamppb.Timestamp{
-				Seconds: ev.Datetime.Unix(),
-				Nanos:   0,
-			},
-			StartDatetime: &timestamppb.Timestamp{
-				Seconds: ev.StartDatetime.Unix(),
-				Nanos:   0,
-			},
-			EndDatetime: &timestamppb.Timestamp{
-				Seconds: ev.EndDatetime.Unix(),
-				Nanos:   0,
-			},
-			Description:      ev.Description,
-			UserID:           ev.UserID.String(),
-			RemindTimeBefore: &durationpb.Duration{Seconds: int64(ev.RemindTimeBefore.Seconds())},
-		})
-	}
-	return &grpcEvents, nil
+	return packGrpcEvents(events), nil
 }
-func (a ServerApp) GetAllEvents(ctx context.Context, Empty *pbgrpc.Empty) (*pbgrpc.Events, error) {
+
+func (a ServerApp) GetAllEvents(ctx context.Context, empty *pbgrpc.Empty) (*pbgrpc.Events, error) {
 	events, err := a.app.GetAllEvents(ctx)
 	if err != nil {
 		return nil, err
 	}
 	var grpcEvents pbgrpc.Events
 	for _, ev := range events {
-
 		grpcEvents.Events = append(grpcEvents.Events, &pbgrpc.Event{
 			UUID:  ev.UUID.String(),
 			Title: ev.Title,
@@ -214,8 +172,10 @@ func (a ServerApp) GetAllEvents(ctx context.Context, Empty *pbgrpc.Empty) (*pbgr
 			},
 			Description: ev.Description,
 			UserID:      ev.UserID.String(),
-			RemindTimeBefore: &durationpb.Duration{Seconds: int64(ev.RemindTimeBefore.Seconds()),
-				Nanos: int32(ev.RemindTimeBefore.Nanoseconds())},
+			RemindTimeBefore: &durationpb.Duration{
+				Seconds: int64(ev.RemindTimeBefore.Seconds()),
+				Nanos:   int32(ev.RemindTimeBefore.Nanoseconds()),
+			},
 		})
 	}
 
@@ -224,8 +184,8 @@ func (a ServerApp) GetAllEvents(ctx context.Context, Empty *pbgrpc.Empty) (*pbgr
 
 func NewServer(logger *logger.Logger, config *config.Config, app app.Application) *Server {
 	return &Server{
-		Host:   config.GrpcServer.Host,
-		Port:   config.GrpcServer.Port,
+		Host:   config.GRPCServer.Host,
+		Port:   config.GRPCServer.Port,
 		server: grpc.NewServer(),
 		app:    app,
 	}
@@ -249,9 +209,7 @@ func (s *Server) Start(ctx context.Context) error {
 }
 
 func (s *Server) Stop(ctx context.Context) error {
-	err := s.listener.Close()
-
-	if err != nil {
+	if err := s.listener.Close(); err != nil {
 		log.Fatal(err)
 	}
 	s.server.GracefulStop()

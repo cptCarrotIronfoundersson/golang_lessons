@@ -7,12 +7,12 @@ import (
 )
 
 type Event struct {
-	UUID             uuid.UUID     `json:"UUID"`
-	Title            string        `json:"Title"`
-	Datetime         time.Time     `json:"Datetime"`
-	StartDatetime    time.Time     `json:"StartDatetime"`
-	EndDatetime      time.Time     `json:"EndDatetime"`
-	Description      string        `json:"Description"`
-	UserID           uuid.UUID     `json:"UserID"`
-	RemindTimeBefore time.Duration `json:"RemindTimeBefore"`
+	UUID             uuid.UUID     `json:"uuid"`
+	Title            string        `json:"title"`
+	Datetime         time.Time     `json:"datetime"`
+	StartDatetime    time.Time     `json:"startDatetime"`
+	EndDatetime      time.Time     `json:"endDatetime"`
+	Description      string        `json:"description"`
+	UserID           uuid.UUID     `json:"userId"`
+	RemindTimeBefore time.Duration `json:"remindTimeBefore"`
 }

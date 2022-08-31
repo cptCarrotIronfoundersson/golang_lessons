@@ -2,6 +2,8 @@ package grpc
 
 import (
 	"context"
+	"testing"
+
 	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/app"
 	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/logger"
 	pbgrpc "github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/server/grpc/pb"
@@ -9,7 +11,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"testing"
 )
 
 func TestCreateEvents(t *testing.T) {
@@ -22,7 +23,7 @@ func TestCreateEvents(t *testing.T) {
 		app:                         calendar,
 	}
 
-	var testEvents = pbgrpc.Events{
+	testEvents := pbgrpc.Events{
 		Events: []*pbgrpc.Event{
 			{
 				UUID:  "efcc9d68-a658-4a36-92b0-0af8ffa94add",
@@ -80,7 +81,7 @@ func TestCreateEvents(t *testing.T) {
 		}
 	}
 
-	var date = pbgrpc.Datetime{
+	date := pbgrpc.Datetime{
 		Timestamp: &timestamppb.Timestamp{
 			Seconds: 0,
 		},
@@ -105,7 +106,4 @@ func TestCreateEvents(t *testing.T) {
 		assert.Equal(t, expectedMap[i].Description, testEventsMap[i].Description)
 		assert.Equal(t, expectedMap[i].Title, testEventsMap[i].Title)
 	}
-	//for i := 0; i < len(allEvents.Events); i++ {
-
-	//}
 }

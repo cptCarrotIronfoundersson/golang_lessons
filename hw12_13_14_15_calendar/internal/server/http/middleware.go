@@ -9,12 +9,11 @@ import (
 type statusWriter struct {
 	http.ResponseWriter
 	status int
-	length int
 }
 type middleware func(logger Logger, next http.Handler) http.Handler
 
 func middlewareChainApply(logger Logger, next http.Handler, m []middleware) http.Handler {
-	var chainedHandler = next
+	chainedHandler := next
 	for _, mid := range m {
 		chainedHandler = mid(logger, chainedHandler)
 	}
@@ -37,7 +36,7 @@ func loggingMiddleware(logger Logger, next http.Handler) http.Handler {
 	})
 }
 
-func EnsureAppJsonMiddleware(logger Logger, next http.Handler) http.Handler {
+func EnsureAppJSONMiddleware(logger Logger, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Header.Get("Content-Type") != "application/json" {
 			fmt.Println(r.Header.Get("Content-Type"))
