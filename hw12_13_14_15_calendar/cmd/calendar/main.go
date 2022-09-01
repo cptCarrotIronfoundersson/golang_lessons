@@ -14,7 +14,8 @@ import (
 	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/logger"
 	internalgrpc "github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/server/grpc"
 	internalhttp "github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/server/http"
-	memorystorage "github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/storage/memory"
+	sqlstorage "github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/storage/sql"
+	_ "github.com/lib/pq"
 )
 
 func init() {
@@ -32,7 +33,7 @@ func main() {
 	conf := cmd.Config.NewConfig()
 	logg := logger.New(conf.Logger.Level)
 
-	storage := memorystorage.New()
+	storage := sqlstorage.New()
 	calendar := app.New(logg, storage)
 	grpcserver := internalgrpc.NewServer(logg, conf, calendar)
 	httpserver := internalhttp.NewServer(logg, conf, calendar)

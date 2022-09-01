@@ -12,4 +12,5 @@ grpcserver:
   port: 2022
   available: true
 
-#  port: 30023
+storage:
+  dsn:  postgres://postgres:PASSWORD@localhost:5432/otus?sslmode=disable

@@ -42,7 +42,9 @@ func init() {
 	cobra.CheckErr(viper.BindEnv("http_server.Port", "http_server.port", "httpPort"))
 	cobra.CheckErr(viper.BindEnv("grpc_server.Host", "grpchost", "grpcHost", "grpc_server.host"))
 	cobra.CheckErr(viper.BindEnv("grpc_server.Port", "grpc_server.port", "grpcPort"))
+	cobra.CheckErr(viper.BindEnv("storage.dsn", "storageDsn"))
 	cobra.CheckErr(viper.BindPFlag("config", rootCmd.PersistentFlags().Lookup("config")))
+	cobra.CheckErr(viper.BindPFlag("storage.dsn", rootCmd.PersistentFlags().Lookup("storage.dsn")))
 	cobra.CheckErr(viper.BindPFlag("logger.loglevel", rootCmd.PersistentFlags().Lookup("logger.loglevel")))
 	cobra.CheckErr(viper.BindPFlag("logger.logfile", rootCmd.PersistentFlags().Lookup("logger.logfile")))
 	cobra.CheckErr(viper.BindPFlag("http_server.Host", rootCmd.PersistentFlags().Lookup("http_server.Host")))
@@ -76,6 +78,5 @@ func initConfig() {
 	} else {
 		cobra.CheckErr(err)
 	}
-	fmt.Println(Config.GRPCServer.Port, Config.GRPCServer.Host, Config.Logger.Level)
-	fmt.Println(Config.HTTPServer.Port, Config.HTTPServer.Host, Config.Logger.Level)
+	fmt.Println(Config.Storage.DSN)
 }

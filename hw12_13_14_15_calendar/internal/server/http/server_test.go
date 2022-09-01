@@ -18,6 +18,7 @@ import (
 )
 
 func TestCreateEvents(t *testing.T) {
+	// dsn for sqlstorage test cmd.Config.Storage.DSN = "postgres://postgres:PASSWORD@localhost:5432/otus?sslmode=disable"
 	storage := memorystorage.New()
 	logg := logger.New("DEBUG")
 	calendar := app.New(logg, storage)
@@ -76,7 +77,7 @@ func TestCreateEvents(t *testing.T) {
 		createEventRw := httptest.NewRecorder()
 		serverAppTest.createEvent(createEventRw, req)
 		reqResult := createEventRw.Result()
-		assert.Equal(t, reqResult.StatusCode, http.StatusOK)
+		assert.Equal(t, http.StatusOK, reqResult.StatusCode)
 		reqResult.Body.Close()
 	}
 	getAllEventsRw := httptest.NewRecorder()
@@ -105,8 +106,9 @@ func TestCreateEvents(t *testing.T) {
 		i := i
 		expectedMap[i.UserID] = &i
 	}
+	assert.Equal(t, len(testEvents), len(testEventsExp))
 
-	for i := range testEventsExp {
+	for i := range testEvents {
 		assert.Equal(t, testEventsExp[i].UserID, testEvents[i].UserID)
 		assert.Equal(t, testEventsExp[i].StartDatetime, testEvents[i].StartDatetime)
 		assert.Equal(t, testEventsExp[i].StartDatetime, testEvents[i].StartDatetime)

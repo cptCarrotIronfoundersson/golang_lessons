@@ -165,9 +165,9 @@ func (a ServerApp) getAllEvents(rw http.ResponseWriter, req *http.Request) {
 	if req.Method == http.MethodGet {
 		events, err := a.app.GetAllEvents(context.Background())
 		if err != nil {
-			fmt.Println(err)
+			a.logger.Error(err)
 		}
-		eventsJSON, err := json.MarshalIndent(events, "", "\t")
+		eventsJSON, err := json.MarshalIndent(&events, "", "\t")
 		if err != nil {
 			a.logger.Error(err)
 		}
