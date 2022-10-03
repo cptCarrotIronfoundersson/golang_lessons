@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/natefinch/lumberjack"
@@ -41,7 +42,7 @@ func (l Logger) Info(args ...interface{}) {
 }
 
 func (l Logger) Error(args ...interface{}) {
-	l.Logger.Error(args)
+	l.Logger.Error(fmt.Sprintf("%+v", args))
 }
 
 // TODO

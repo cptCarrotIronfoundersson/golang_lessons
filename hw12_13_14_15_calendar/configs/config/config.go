@@ -8,7 +8,11 @@ type Config struct {
 	File   struct {
 		Path string
 	}
-	Server struct {
+	HTTPServer struct {
+		Host string
+		Port string
+	}
+	GRPCServer struct {
 		Host string
 		Port string
 	}

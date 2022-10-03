@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/service/entity"
+	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/service/entity"
 	"github.com/google/uuid"
 )
 
@@ -15,4 +15,5 @@ type Storage interface {
 	Delete(ctx context.Context, uuid uuid.UUID) error
 	Update(ctx context.Context, event entity.Event, UUID uuid.UUID) error
 	EventsListDateRange(ctx context.Context, startDate time.Time, endDate time.Time) ([]entity.Event, error)
+	AllEvents(ctx context.Context) ([]entity.Event, error)
 }

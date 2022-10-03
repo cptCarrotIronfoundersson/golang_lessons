@@ -10,8 +10,7 @@ create table events
     end_datetime     timestamptz,
     description      varchar,
     userid           UUID,
-    remind_time_before interval
-
+    remind_time_before varchar
 );
 -- +goose StatementEnd
 
