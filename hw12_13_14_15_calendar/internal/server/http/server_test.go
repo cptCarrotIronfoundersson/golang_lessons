@@ -2,6 +2,8 @@ package internalhttp
 
 import (
 	"encoding/json"
+	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/cmd"
+	sqlstorage "github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/storage/sql"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -12,14 +14,14 @@ import (
 	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/app"
 	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/logger"
 	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/service/entity"
-	memorystorage "github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/storage/memory"
 	"github.com/google/uuid"
+	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestCreateEvents(t *testing.T) {
-	// dsn for sqlstorage test cmd.Config.Storage.DSN = "postgres://postgres:PASSWORD@localhost:5432/otus?sslmode=disable"
-	storage := memorystorage.New()
+	cmd.Config.Storage.DSN = "postgres://postgres:PASSWORD@localhost:5432/otus?sslmode=disable"
+	storage := sqlstorage.New()
 	logg := logger.New("DEBUG")
 	calendar := app.New(logg, storage)
 	strTestUUIDS := []string{"d35e2669-6d1f-408d-a19f-38dab00a8772", "d35e2669-6d1f-408d-a19f-38dab00a8771"}

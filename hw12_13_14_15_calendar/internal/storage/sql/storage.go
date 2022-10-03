@@ -91,3 +91,8 @@ func (s *Storage) AllEvents(ctx context.Context) ([]entity.Event, error) {
 	}
 	return eventsList, nil
 }
+
+func (s *Storage) DeleteOldEvents(ctx context.Context) error {
+	_, err := s.conn.ExecContext(ctx, DeleteOldEvent)
+	return err
+}

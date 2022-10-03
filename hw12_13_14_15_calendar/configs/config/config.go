@@ -19,6 +19,9 @@ type Config struct {
 	Storage struct {
 		DSN string
 	}
+	Queue struct {
+		DSN string
+	}
 }
 
 type LoggerConf struct {

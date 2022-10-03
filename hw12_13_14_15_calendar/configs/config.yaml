@@ -13,4 +13,7 @@ grpcserver:
   available: true
 
 storage:
-  dsn:  postgres://postgres:PASSWORD@localhost:5432/otus?sslmode=disable
+  dsn:  postgres://postgres:PASSWORD@db/otus?sslmode=disable
+
+queue:
+  dsn: amqp://myuser:mypassword@localhost:5672

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	sqlstorage "github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/storage/sql"
 	"log"
 	"os"
 	"os/signal"
@@ -11,10 +12,8 @@ import (
 
 	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/cmd"
 	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/app"
-	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/logger"
 	internalgrpc "github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/server/grpc"
 	internalhttp "github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/server/http"
-	sqlstorage "github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/storage/sql"
 	_ "github.com/lib/pq"
 )
 
@@ -31,9 +30,10 @@ func main() {
 	}
 
 	conf := cmd.Config.NewConfig()
-	logg := logger.New(conf.Logger.Level)
+	logg := cmd.Logger
 
 	storage := sqlstorage.New()
+	//storage := memorystorage.New()
 	calendar := app.New(logg, storage)
 	grpcserver := internalgrpc.NewServer(logg, conf, calendar)
 	httpserver := internalhttp.NewServer(logg, conf, calendar)
@@ -43,10 +43,8 @@ func main() {
 
 	go func() {
 		<-ctx.Done()
-
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 		defer cancel()
-
 		if err := httpserver.Stop(ctx); err != nil {
 			logg.Error("failed to stop http server: " + err.Error())
 		}

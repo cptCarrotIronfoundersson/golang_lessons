@@ -1,9 +1,14 @@
-version: "3.1"
+version: "3.8"
 services:
   calendar:
     build:
       context: ..
       dockerfile: build/Dockerfile
+    depends_on:
+      rabbitmq3:
+         condition: service_started
+      db:
+        condition: service_healthy
   db:
     image: postgres
     restart: always
@@ -11,8 +16,11 @@ services:
       POSTGRES_PASSWORD: PASSWORD
       POSTGRES_DB: otus
       POSTGRES_USER: postgres
-    depends_on:
-      - calendar
+    healthcheck:
+      test: pg_isready -U postgres
+      interval: 30s
+      timeout: 60s
+      retries: 5
     ports:
       - "5432:5432"
 

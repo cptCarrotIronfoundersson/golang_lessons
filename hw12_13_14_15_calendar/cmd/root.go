@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/logger"
 	"log"
 	"os"
 
@@ -11,8 +12,8 @@ import (
 )
 
 var (
-	Config config.Config
-
+	Config  config.Config
+	Logger  *logger.Logger
 	rootCmd = &cobra.Command{
 		Use:   "cobra-cli",
 		Short: "Calendar API SERVICE short annotation",
@@ -36,6 +37,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&Config.GRPCServer.Host, "grpc_server.Host", "127.0.0.1", "GRPC SERVER host")
 	rootCmd.PersistentFlags().StringVar(&Config.GRPCServer.Port, "grpc_server.Port", "8081", "server port")
 	rootCmd.PersistentFlags().StringVar(&Config.Storage.DSN, "storage.dsn", "", "db dsn")
+	rootCmd.PersistentFlags().StringVar(&Config.Queue.DSN, "queue.dsn", "", "queue dsn")
 	cobra.CheckErr(viper.BindEnv("logger.loglevel", "loglevel", "log-level", "log_level"))
 	cobra.CheckErr(viper.BindEnv("logger.logfile", "logfile", "log_file", "logFile"))
 	cobra.CheckErr(viper.BindEnv("http_server.Host", "httphost", "httpHost", "http_server.host"))
@@ -43,6 +45,7 @@ func init() {
 	cobra.CheckErr(viper.BindEnv("grpc_server.Host", "grpchost", "grpcHost", "grpc_server.host"))
 	cobra.CheckErr(viper.BindEnv("grpc_server.Port", "grpc_server.port", "grpcPort"))
 	cobra.CheckErr(viper.BindEnv("storage.dsn", "storageDsn"))
+	cobra.CheckErr(viper.BindEnv("queue.dsn", "queueDsn"))
 	cobra.CheckErr(viper.BindPFlag("config", rootCmd.PersistentFlags().Lookup("config")))
 	cobra.CheckErr(viper.BindPFlag("storage.dsn", rootCmd.PersistentFlags().Lookup("storage.dsn")))
 	cobra.CheckErr(viper.BindPFlag("logger.loglevel", rootCmd.PersistentFlags().Lookup("logger.loglevel")))
@@ -51,6 +54,7 @@ func init() {
 	cobra.CheckErr(viper.BindPFlag("http_server.Port", rootCmd.PersistentFlags().Lookup("http_server.Port")))
 	cobra.CheckErr(viper.BindPFlag("grpc_server.Host", rootCmd.PersistentFlags().Lookup("grpc_server.Host")))
 	cobra.CheckErr(viper.BindPFlag("grpc_server.Port", rootCmd.PersistentFlags().Lookup("grpc_server.Port")))
+	cobra.CheckErr(viper.BindPFlag("queue.dsn", rootCmd.PersistentFlags().Lookup("queue.dsn")))
 	cobra.OnInitialize(initConfig)
 }
 
@@ -75,8 +79,8 @@ func initConfig() {
 		if err != nil {
 			fmt.Println("Error during unmarshalling file:", err)
 		}
+		Logger = logger.New(Config.Logger.Level)
 	} else {
 		cobra.CheckErr(err)
 	}
-	fmt.Println(Config.Storage.DSN)
 }

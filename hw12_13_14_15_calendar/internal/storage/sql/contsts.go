@@ -25,4 +25,6 @@ const (
 
 	// language=SQL .
 	DeleteEvent = `delete from events where uuid=$1;`
+
+	DeleteOldEvent = `delete from events where end_datetime < now()-interval '1 year';`
 )
