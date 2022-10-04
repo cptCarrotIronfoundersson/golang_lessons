@@ -2,8 +2,6 @@ package internalhttp
 
 import (
 	"encoding/json"
-	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/cmd"
-	sqlstorage "github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/storage/sql"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -11,9 +9,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/cmd"
 	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/app"
 	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/logger"
 	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/service/entity"
+	sqlstorage "github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/storage/sql"
 	"github.com/google/uuid"
 	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/assert"

@@ -2,19 +2,21 @@ package main
 
 import (
 	"context"
-	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/cmd"
-	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/configs/config"
-	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/brokers/rabbitmq"
-	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/logger"
-	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/service/entity"
-	sqlstorage "github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/storage/sql"
-	_ "github.com/lib/pq"
 	"log"
 	"os"
 	"os/signal"
 	"sync"
 	"syscall"
 	"time"
+
+	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/cmd"
+	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/configs/config"
+	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/brokers/rabbitmq"
+	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/logger"
+	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/service/entity"
+	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/storage"
+	sqlstorage "github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/storage/sql"
+	_ "github.com/lib/pq"
 )
 
 func init() {
@@ -30,14 +32,13 @@ type Queue interface {
 type TasksManager struct {
 	config  *config.Config
 	logger  *logger.Logger
-	storage *sqlstorage.Storage
+	storage storage.Storage
 	events  chan entity.Event
 	mu      *sync.Mutex
-	rabbitmq.EventsNotifier
+	Queue
 }
 
 func (t *TasksManager) Stop() {
-
 }
 
 func (t *TasksManager) deleteOldEvents() {
@@ -63,7 +64,7 @@ func (t *TasksManager) getEventsForNotify() []entity.Event {
 }
 
 func (t *TasksManager) EventNotifyWriter() {
-	var events = make(map[string]entity.Event)
+	events := make(map[string]entity.Event)
 	for {
 		for _, event := range t.getEventsForNotify() {
 			uuid := event.UUID.String()
@@ -74,11 +75,12 @@ func (t *TasksManager) EventNotifyWriter() {
 				t.events <- event
 			}
 		}
+		t.deleteOldEvents()
 		time.Sleep(time.Minute * 1)
 	}
 }
 
-func (t *TasksManager) EventsNotifyReader() {
+func (t *TasksManager) EventsNotifySender() {
 	for {
 		event, ok := <-t.events
 		if !ok {
@@ -94,15 +96,15 @@ func (t *TasksManager) EventsNotifyReader() {
 func main() {
 	conf := cmd.Config.NewConfig()
 	logg := logger.New(conf.Logger.Level)
-	storage := sqlstorage.New()
+	st := sqlstorage.New()
 	eventsNotifier := rabbitmq.NewEventsNotifier()
 	errs := make(chan error, 2)
 	tm := TasksManager{
-		config:         cmd.Config.NewConfig(),
-		events:         make(chan entity.Event),
-		logger:         logg,
-		storage:        storage,
-		EventsNotifier: eventsNotifier,
+		config:  cmd.Config.NewConfig(),
+		events:  make(chan entity.Event),
+		logger:  logg,
+		storage: st,
+		Queue:   eventsNotifier,
 	}
 	go func() {
 		c := make(chan os.Signal, 2)
@@ -112,6 +114,5 @@ func main() {
 		defer tm.Stop()
 	}()
 	go tm.EventNotifyWriter()
-	tm.EventsNotifyReader()
-
+	tm.EventsNotifySender()
 }

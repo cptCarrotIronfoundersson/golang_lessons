@@ -16,4 +16,5 @@ type Storage interface {
 	Update(ctx context.Context, event entity.Event, UUID uuid.UUID) error
 	EventsListDateRange(ctx context.Context, startDate time.Time, endDate time.Time) ([]entity.Event, error)
 	AllEvents(ctx context.Context) ([]entity.Event, error)
+	DeleteOldEvents(ctx context.Context) error
 }

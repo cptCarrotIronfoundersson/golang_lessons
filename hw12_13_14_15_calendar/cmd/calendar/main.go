@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"flag"
-	sqlstorage "github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/storage/sql"
 	"log"
 	"os"
 	"os/signal"
@@ -14,6 +13,7 @@ import (
 	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/app"
 	internalgrpc "github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/server/grpc"
 	internalhttp "github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/server/http"
+	sqlstorage "github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/storage/sql"
 	_ "github.com/lib/pq"
 )
 
@@ -33,7 +33,7 @@ func main() {
 	logg := cmd.Logger
 
 	storage := sqlstorage.New()
-	//storage := memorystorage.New()
+	// storage := memorystorage.New()
 	calendar := app.New(logg, storage)
 	grpcserver := internalgrpc.NewServer(logg, conf, calendar)
 	httpserver := internalhttp.NewServer(logg, conf, calendar)

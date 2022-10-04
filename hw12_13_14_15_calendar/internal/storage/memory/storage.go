@@ -62,3 +62,14 @@ func (s *Storage) AllEvents(ctx context.Context) ([]entity.Event, error) {
 	defer s.mu.Unlock()
 	return EventList, nil
 }
+
+func (s *Storage) DeleteOldEvents(ctx context.Context) error {
+	s.mu.Lock()
+	for key, value := range s.events {
+		if value.EndDatetime.Before(value.EndDatetime.Add(-time.Hour - 8784)) {
+			delete(s.events, key)
+		}
+	}
+	defer s.mu.Unlock()
+	return nil
+}

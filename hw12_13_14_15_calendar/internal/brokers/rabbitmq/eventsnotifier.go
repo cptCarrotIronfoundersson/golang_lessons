@@ -3,10 +3,11 @@ package rabbitmq
 import (
 	"context"
 	"encoding/json"
+	"log"
+
 	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/cmd"
 	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/service/entity"
 	amqp "github.com/rabbitmq/amqp091-go"
-	"log"
 )
 
 type EventsNotifier struct {
@@ -23,7 +24,6 @@ func NewEventsNotifier() EventsNotifier {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer ch.Close()
 
 	q, err := ch.QueueDeclare(
 		"OTUSScheduler",
@@ -36,7 +36,7 @@ func NewEventsNotifier() EventsNotifier {
 	if err != nil {
 		log.Fatal(err)
 	}
-	var notifier = EventsNotifier{ch, q}
+	notifier := EventsNotifier{ch, q}
 	return notifier
 }
 

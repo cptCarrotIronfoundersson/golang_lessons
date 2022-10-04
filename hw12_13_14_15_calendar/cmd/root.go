@@ -2,11 +2,11 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/logger"
 	"log"
 	"os"
 
 	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/configs/config"
+	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/logger"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
