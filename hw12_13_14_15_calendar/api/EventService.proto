@@ -2,6 +2,55 @@ syntax = "proto3";
 
 package event;
 
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+
+option go_package = "./pb;grpc";
+
+service Calendar {
+  rpc CreateEvent(EventCreate) returns (Result) {}
+  rpc UpdateEvent(Event) returns (Result) {}
+  rpc DeleteEvent(Event) returns (Result) {}
+  rpc GetEventsByDay(Datetime) returns (Events) {}
+  rpc GetEventsByWeek(Datetime) returns (Events) {}
+  rpc GetEventsByMonth(Datetime) returns (Events) {}
+  rpc GetAllEvents(Empty) returns (Events) {}
+}
+
 message Event {
-    // TODO
+  string UUID = 1;
+  string Title = 2;
+  google.protobuf.Timestamp Datetime = 3;
+  google.protobuf.Timestamp StartDatetime = 4;
+  google.protobuf.Timestamp EndDatetime = 5;
+  string Description = 6;
+  string UserID  = 7;
+  google.protobuf.Duration RemindTimeBefore= 8;
+}
+
+message Result {
+  bool success = 9;
+}
+
+message Datetime{
+ google.protobuf.Timestamp timestamp = 10;
+}
+
+message Events {
+  repeated Event Events = 11;
+}
+
+
+message EventCreate {
+  string Title = 12;
+  google.protobuf.Timestamp Datetime = 13;
+  google.protobuf.Timestamp StartDatetime = 14;
+  google.protobuf.Timestamp EndDatetime = 15;
+  string Description = 16;
+  string UserID  = 17;
+  google.protobuf.Duration RemindTimeBefore = 18;
+}
+
+message Empty {
+
 }

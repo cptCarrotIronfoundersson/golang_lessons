@@ -1,0 +1,19 @@
+logger:
+  level: DEBUG
+  development: True
+  logfile: ~/log
+
+httpserver:
+  host: calendar
+  port: 8888
+
+grpcserver:
+  host: calendar
+  port: 2022
+  available: true
+
+storage:
+  dsn:  postgres://postgres:PASSWORD@db/otus?sslmode=disable
+
+queue:
+  dsn: amqp://myuser:mypassword@rabbitmq3:5672
