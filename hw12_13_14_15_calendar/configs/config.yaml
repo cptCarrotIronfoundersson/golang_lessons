@@ -4,11 +4,11 @@ logger:
   logfile: ~/log
 
 httpserver:
-  host: 127.0.0.1
-  port: 2021
+  host: calendar
+  port: 8888
 
 grpcserver:
-  host: 127.0.0.1
+  host: calendar
   port: 2022
   available: true
 
@@ -16,4 +16,4 @@ storage:
   dsn:  postgres://postgres:PASSWORD@db/otus?sslmode=disable
 
 queue:
-  dsn: amqp://myuser:mypassword@localhost:5672
+  dsn: amqp://myuser:mypassword@rabbitmq3:5672

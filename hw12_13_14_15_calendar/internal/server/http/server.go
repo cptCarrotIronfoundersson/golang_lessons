@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/cmd"
 	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/configs/config"
 	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/app"
 	"github.com/cptCarrotIronfoundersson/hw12_13_14_15_calendar/internal/logger"
@@ -43,14 +44,19 @@ func (a ServerApp) createEvent(rw http.ResponseWriter, req *http.Request) {
 		a.logger.Error("server.createEvent " + err.Error())
 		return
 	}
-	err = a.app.CreateEvent(req.Context(), event)
+	event, err = a.app.CreateEvent(req.Context(), event)
 
 	if err != nil {
 		rw.WriteHeader(http.StatusInternalServerError)
 		a.logger.Error("server.createEvent " + err.Error())
 		return
 	}
+	val, err := json.Marshal(event)
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+	}
 	rw.WriteHeader(http.StatusOK)
+	rw.Write(val)
 }
 
 func (a ServerApp) UpdateEvent(rw http.ResponseWriter, req *http.Request) {
@@ -171,9 +177,12 @@ func (a ServerApp) getAllEvents(rw http.ResponseWriter, req *http.Request) {
 		if err != nil {
 			a.logger.Error(err)
 		}
-		rw.Write(eventsJSON)
+		_, err = rw.Write(eventsJSON)
+		if err != nil {
+			rw.WriteHeader(http.StatusBadRequest)
+		}
 	} else {
-		rw.WriteHeader(http.StatusBadRequest)
+		rw.WriteHeader(http.StatusMethodNotAllowed)
 	}
 }
 
@@ -206,14 +215,18 @@ func NewServer(logger *logger.Logger, config *config.Config, app app.Application
 	http.Handle("/event/get_events_by_week", getEventsByWeek)
 	http.Handle("/event/get_events_by_month", getEventsByMonth)
 	return &Server{
-		Host: config.GRPCServer.Host,
-		Port: config.GRPCServer.Port,
+		Host: config.HTTPServer.Host,
+		Port: config.HTTPServer.Port,
 	}
 }
 
 func (s *Server) Start(ctx context.Context) error {
+	fmt.Println(s.Host, s.Port)
 	err := http.ListenAndServe(fmt.Sprintf("%s:%s", s.Host, s.Port), nil)
-	fmt.Println(err)
+	if err != nil {
+		panic(err)
+	}
+	cmd.Logger.Info(s.Host, s.Port)
 	<-ctx.Done()
 	return nil
 }

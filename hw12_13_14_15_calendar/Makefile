@@ -16,9 +16,10 @@ run_docker:
 	docker-compose -f ./deployments/docker-compose.yaml down --remove-orphans && docker-compose -f ./deployments/docker-compose.yaml up --build -d
 
 migrate-db:
-	/bin/bash migrations/migrate.sh
+	docker-compose -f ./deployments/docker-compose.yaml up migration --build -d
 
-deploy: run_docker migrate-db
+stop_docker:
+	docker-compose -f ./deployments/docker-compose.yaml down --remove-orphans
 
 version: build
 	$(BIN) version
@@ -29,7 +30,16 @@ test:
 install-lint-deps:
 	(which golangci-lint > /dev/null) || curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v1.48.0
 
+integration-tests-run:
+	docker-compose -f ./deployments/docker-compose.integrationtests.yaml up integration_tests --build
+
 lint: install-lint-deps
 	golangci-lint run ./...
+
+up: run_docker migrate-db
+
+down: stop_docker
+
+integration-tests: up integration-tests-run down
 
 .PHONY: build run build-img deploy version test lint

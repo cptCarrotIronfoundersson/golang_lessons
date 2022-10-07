@@ -1,8 +1,7 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
-export GOOSE_DRIVER=postgres
-export GOOSE_DBSTRING="user=postgres dbname=otus sslmode=disable password=PASSWORD"
+DBSTRING="postgresql://postgres:PASSWORD@db/otus?sslmode=disable"
 
-sleep 5
-/usr/local/bin/goose -dir ./migrations  up
-/usr/local/bin/goose -dir ./migrations  status
+goose postgres "$DBSTRING" up
+goose postgres "$DBSTRING" status
+#ping db

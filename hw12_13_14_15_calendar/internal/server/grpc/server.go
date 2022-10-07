@@ -73,7 +73,7 @@ func (a ServerApp) CreateEvent(ctx context.Context, event *pbgrpc.EventCreate) (
 	}
 
 	fmt.Println(event.RemindTimeBefore.Nanos)
-	err = a.app.CreateEvent(ctx, ev)
+	_, err = a.app.CreateEvent(ctx, ev)
 
 	if err != nil {
 		return nil, err

@@ -18,7 +18,10 @@ const (
 					remind_time_before=excluded.remind_time_before;
 `
 	// language=SQL .
-	GetEventsByTimeRange = `SELECT * from events where start_datetime > $1 and end_datetime < $2;`
+	GetEventsByTimeRange = `SELECT * from events 
+							where 
+								start_datetime::date >= $1::date 
+							  	and end_datetime::date <= $2::date;`
 
 	// language=SQL .
 	GetAllEvents = `SELECT * from events;`

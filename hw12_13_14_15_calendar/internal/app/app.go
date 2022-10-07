@@ -11,7 +11,7 @@ import (
 )
 
 type Application interface {
-	CreateEvent(ctx context.Context, event entity.Event) error
+	CreateEvent(ctx context.Context, event entity.Event) (entity.Event, error)
 	UpdateEvent(ctx context.Context, event entity.Event) error
 	DeleteEvent(ctx context.Context, eventUUID uuid.UUID) error
 	GetEventsBetween(ctx context.Context, startDate time.Time, endDate time.Time) ([]entity.Event, error)
@@ -27,12 +27,12 @@ func New(logger *logger.Logger, storage storage.Storage) *App {
 	return &App{Storage: storage, Logger: logger}
 }
 
-func (a *App) CreateEvent(ctx context.Context, event entity.Event) error {
-	err := a.Storage.Create(ctx, event)
+func (a *App) CreateEvent(ctx context.Context, event entity.Event) (entity.Event, error) {
+	event, err := a.Storage.Create(ctx, event)
 	if err != nil {
-		return err
+		return entity.Event{}, err
 	}
-	return nil
+	return event, nil
 }
 
 func (a *App) UpdateEvent(ctx context.Context, event entity.Event) error {

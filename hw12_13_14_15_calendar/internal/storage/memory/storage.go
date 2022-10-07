@@ -19,12 +19,12 @@ func New() *Storage {
 	return &Storage{mu: sync.RWMutex{}, events: events}
 }
 
-func (s *Storage) Create(ctx context.Context, event entity.Event) error {
+func (s *Storage) Create(ctx context.Context, event entity.Event) (entity.Event, error) {
 	s.mu.Lock()
 	event.UUID = uuid.New()
 	s.events[event.UUID] = event
 	defer s.mu.Unlock()
-	return nil
+	return event, nil
 }
 
 func (s *Storage) Update(ctx context.Context, event entity.Event, uuid uuid.UUID) error {

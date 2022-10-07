@@ -88,7 +88,7 @@ func (t *TasksManager) EventsNotifySender() {
 		}
 		err := t.NotifyEvent(context.Background(), event)
 		if err != nil {
-			cmd.Logger.Error(err)
+			cmd.Logger.Error(err, "test")
 		}
 	}
 }
