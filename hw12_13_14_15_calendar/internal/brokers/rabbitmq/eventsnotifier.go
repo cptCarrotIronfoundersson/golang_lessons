@@ -18,7 +18,7 @@ type EventsNotifier struct {
 func NewEventsNotifier() EventsNotifier {
 	conn, err := amqp.Dial(cmd.Config.Queue.DSN)
 	if err != nil {
-		log.Fatal(conn)
+		log.Fatal(err)
 	}
 	ch, err := conn.Channel()
 	if err != nil {

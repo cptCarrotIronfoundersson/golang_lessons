@@ -2,7 +2,6 @@ package sqlstorage
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"time"
 
@@ -35,10 +34,11 @@ func (s *Storage) Close(ctx context.Context) error {
 	return err
 }
 
-func (s *Storage) Create(ctx context.Context, event entity.Event) error {
+func (s *Storage) Create(ctx context.Context, event entity.Event) (entity.Event, error) {
+	event.UUID = uuid.New()
 	_, err := s.conn.ExecContext(ctx,
 		CreateEvent,
-		uuid.New().String(),
+		event.UUID,
 		event.Title,
 		event.Datetime,
 		event.StartDatetime,
@@ -50,7 +50,7 @@ func (s *Storage) Create(ctx context.Context, event entity.Event) error {
 	if err != nil {
 		panic(err)
 	}
-	return err
+	return event, err
 }
 
 func (s *Storage) Delete(ctx context.Context, uuid uuid.UUID) error {
@@ -85,7 +85,6 @@ func (s *Storage) EventsListDateRange(ctx context.Context, start time.Time, end 
 func (s *Storage) AllEvents(ctx context.Context) ([]entity.Event, error) {
 	var eventsList []entity.Event
 	err := s.conn.SelectContext(context.Background(), &eventsList, GetAllEvents)
-	fmt.Println(eventsList, "sdasd")
 	if err != nil {
 		return nil, err
 	}

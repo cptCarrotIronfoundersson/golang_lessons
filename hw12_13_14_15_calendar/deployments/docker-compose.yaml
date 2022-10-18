@@ -3,10 +3,31 @@ services:
   calendar:
     build:
       context: ..
-      dockerfile: build/Dockerfile
+      dockerfile: build/calendar/Dockerfile
     depends_on:
+      migration:
+         condition: service_started
       rabbitmq3:
          condition: service_started
+      db:
+        condition: service_healthy
+    ports:
+      - "2022:2022"
+      - "8888:8888"
+  migration:
+    build:
+      context: ..
+      dockerfile: build/migrations/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+  scheduler:
+    build:
+      context: ..
+      dockerfile: build/scheduler/Dockerfile
+    depends_on:
+      rabbitmq3:
+        condition: service_started
       db:
         condition: service_healthy
   db:
@@ -23,19 +44,6 @@ services:
       retries: 5
     ports:
       - "5432:5432"
-
-  pgadmin:
-    container_name: pgadmin4_container
-    image: dpage/pgadmin4
-    restart: always
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: root
-    depends_on:
-      - db
-    ports:
-      - "5050:80"
-
   rabbitmq3:
     container_name: "rabbitmq"
     image: rabbitmq:3.8-management-alpine
